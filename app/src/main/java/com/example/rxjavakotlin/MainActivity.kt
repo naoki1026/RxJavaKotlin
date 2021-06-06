@@ -47,25 +47,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        groupByOperator()
-            .groupBy {
-                it.age
-            }
-            .filter {
-                it.key == 22
-            }
+        mergeOperator()
             .subscribe(
-                { group ->
-                    group.subscribe (
-                        {
-                            Log.d(TAG, "Key : ${group.key} - value : $it")
-
-
-                        },
-                        {
-                            Log.d(TAG, "onError ${it}")
-                        }
-                    )
+                {
+                    Log.d(TAG, "OnNext $it")
                 },
                 {
                     Log.d(TAG, "onError ${it}")
@@ -372,6 +357,23 @@ class MainActivity : AppCompatActivity() {
         return Observable.fromIterable(mUserList)
     }
 
-    
+    /** 21.Merge Operator
+     *  複数の出力を結合することで、1つにまとめることができる
+     *  */
+
+    fun getUser() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+
+    fun getProfile() : Observable<UserProfile> {
+        return Observable.fromIterable(mUserProfileList)
+    }
+
+
+    fun mergeOperator(): Observable<Any> {
+        return Observable.merge(getUser(), getProfile())
+    }
+
 
 }
