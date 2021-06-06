@@ -26,7 +26,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        fromIterableOperator()
+        rangeOperator().subscribe(
+            {
+                Log.d(TAG, "onNext : $it")
+            },
+            {
+                Log.d(TAG, "${it}")
+            },
+            {
+                Log.d(TAG, "onComplete")
+            }
+        )
     }
 
     /** Just
