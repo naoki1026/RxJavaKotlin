@@ -29,13 +29,16 @@ class MainActivity : AppCompatActivity() {
         User(5, "demo5", 22),
         User(6, "demo6", 26)
     )
+    val mUserEmptyList = emptyList<User>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        lastOperator()
-            .last(User(1, "demo", 15))
+        distinctOperator()
+            .distinct() {
+                it.age
+            }
             .subscribe(
                 {
                     Log.d(TAG, "onNext : $it")
@@ -43,6 +46,9 @@ class MainActivity : AppCompatActivity() {
                 {
                     Log.d(TAG, "onError ${it}")
                 },
+                {
+                    Log.d(TAG, "onComplete")
+                }
             )
     }
 
@@ -283,6 +289,14 @@ class MainActivity : AppCompatActivity() {
 
 
     fun lastOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+    /** Distinct
+     *  重複しているアイテムはどちらか片方しか表示されない。
+     *  */
+
+    fun distinctOperator() : Observable<User> {
         return Observable.fromIterable(mUserList)
     }
 }
