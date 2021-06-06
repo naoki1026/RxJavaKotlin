@@ -35,8 +35,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        skipOperator()
-            .skip(2)
+        bufferOperator()
+            .buffer(3)
             .subscribe(
                 {
                     Log.d(TAG, "onNext : $it")
@@ -303,6 +303,14 @@ class MainActivity : AppCompatActivity() {
      *  */
 
     fun skipOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+    /** 17.Buffer
+     *  アイテムを一度に出力するのではなくて、分けて出力する。
+     *  */
+
+    fun bufferOperator() : Observable<User> {
         return Observable.fromIterable(mUserList)
     }
 
