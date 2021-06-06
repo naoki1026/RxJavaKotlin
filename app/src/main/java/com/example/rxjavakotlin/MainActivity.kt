@@ -70,20 +70,7 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            )
 
-        zipOperatorSecond()
-            .subscribe(
-                {
-                    it.forEach {
-                        Log.d(TAG, "onNext: $it")
-                    }
-                },
-                {
-                    Log.d(TAG, "onError ${it}")
-                },
-                {
-                    Log.d(TAG, "onComplete")
-                }
-            )
+        createObservable().subscribe(observer())
     }
 
     /** 4, 5.Just
@@ -431,7 +418,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    /** 23.Zip Operator
+    /** 24.Zip Operator
      *  複数のObservableを組み合わせて（合体する）、出力する
      *  例では、1つめのObservableを組み合わせて、1Aと出力している。
      *  以降同様に組み合わせて出力して、5に関しては対応するアルファベットが存在しないため、出力されない。
@@ -481,4 +468,48 @@ class MainActivity : AppCompatActivity() {
         return listBlogDetail
     }
 
+    /** 25.Observable　and Observer
+     *  */
+
+
+    fun createObservable() : Observable<Int> {
+        return Observable.create { emitter ->
+            try {
+                if(!emitter.isDisposed){
+                    for(i in 0..100) {
+                        emitter.onNext(i)
+                    }
+                    emitter.onComplete()
+                }
+
+
+            }
+            catch (e:Exception) {
+                emitter.onError(e)
+
+
+            }
+        }
+    }
+
+
+    fun observer() : Observer<Int> {
+        return object : Observer<Int> {
+            override fun onSubscribe(d: Disposable?) {
+                Log.d(TAG, "onSubscribe")
+            }
+
+            override fun onNext(t: Int?) {
+                Log.d(TAG, "onNext $t")
+            }
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG, "onError")
+            }
+
+            override fun onComplete() {
+                Log.d(TAG, "onComplete")
+            }
+        }
+    }
 }
