@@ -21,22 +21,34 @@ class MainActivity : AppCompatActivity() {
     val mList: MutableList<Int> = mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     val arrayNum = arrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
     val arrayNum1 = arrayOf(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
+    val mUserList = arrayListOf<User>(
+        User(1, "demo1", 22),
+        User(2, "demo2", 18),
+        User(3, "demo3", 15),
+        User(4, "demo4", 16),
+        User(5, "demo5", 22),
+        User(6, "demo6", 26)
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        createOperator().subscribe(
-            {
-                Log.d(TAG, "onNext : $it")
-            },
-            {
-                Log.d(TAG, "${it}")
-            },
-            {
-                Log.d(TAG, "onComplete")
+        filterOperator()
+            .filter {
+                it.age > 18
             }
-        )
+            .subscribe(
+                {
+                    Log.d(TAG, "onNext : $it")
+                },
+                {
+                    Log.d(TAG, "onError ${it}")
+                },
+                {
+                    Log.d(TAG, "onComplete")
+                }
+            )
     }
 
     /** Just
@@ -260,5 +272,13 @@ class MainActivity : AppCompatActivity() {
                 it.onError(e)
             }
         })
+    }
+
+    /** filter
+     *  条件に一致したアイテムのみ抽出する。
+     *  */
+
+    fun filterOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
     }
 }
