@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mergeOperator()
+        concatOperator()
             .subscribe(
                 {
                     Log.d(TAG, "OnNext $it")
@@ -373,6 +373,27 @@ class MainActivity : AppCompatActivity() {
 
     fun mergeOperator(): Observable<Any> {
         return Observable.merge(getUser(), getProfile())
+    }
+
+    /** 22.Concat Operator
+     *  複数のObservableを合成。
+     *  mergeとconcatの違いはmergeはObservableを合成する際に全てのストリームの順を考慮した合成のに対し、
+     *  concatは引数で渡されたObservableの順で合成すること。
+     *  */
+
+    fun getNum1To100() : Observable<Int> {
+        return Observable.range(1, 100)
+    }
+
+
+    fun getNum101To150() : Observable<Int> {
+        return Observable.range(101, 50)
+    }
+
+
+    fun concatOperator(): Observable<Int>{
+    return Observable.concat(getNum101To150(), getNum1To100())
+//        return getNum1To100().concatWith(getNum101To150())
     }
 
 
