@@ -35,10 +35,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        distinctOperator()
-            .distinct() {
-                it.age
-            }
+        skipOperator()
+            .skip(2)
             .subscribe(
                 {
                     Log.d(TAG, "onNext : $it")
@@ -52,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             )
     }
 
-    /** Just
+    /** 4, 5.Just
      *  直接引数に渡したオブジェクトで Observable を生成する。
      *  また、複数渡した場合はその分 onNext が呼ばれ、複数渡す場合は型が統一されてなくてもエラーにならない。
      *
@@ -84,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         observable.subscribe(observer)
     }
 
-    /** fromArray
+    /** 6.fromArray
      *  様々なオブジェクトをObservableに変換する。
      *
      *  D/MainActivity: onSubscribe
@@ -117,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         observable.subscribe(observer)
     }
 
-    /** from Iterable
+    /** 7.from Iterable
      *  要素を取り出して、1つずつ出力する。
      *
      * D/MainActivity: onSubscribe
@@ -157,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         observable.subscribe(observer)
     }
 
-    /** Range
+    /** 8.Range
      *  指定した範囲の整数を出力するObservableを生成する。
      *
      * D/MainActivity: onNext : 1
@@ -178,7 +176,7 @@ class MainActivity : AppCompatActivity() {
         return Observable.range(1, 10)
     }
 
-    /** Repeat
+    /** 9.Repeat
      *  指定回数繰り返す Observable を生成する。
      *　
      *  D/MainActivity: onNext : 1
@@ -230,7 +228,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    /** Interval
+    /** 10.Interval
      *  間隔をあけて出力する。
      *  */
 
@@ -245,7 +243,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Timer
+    /** 11.Timer
      *  指定した時間分の遅延後に値が出力する Observableを作成する。
      *  */
 
@@ -257,7 +255,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "latitude: 102.0303 Longitude: 1.2355")
     }
 
-    /** create
+    /** 12.create
      *  スクラッチでObservableを作るオペレーター
      *  */
 
@@ -275,7 +273,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    /** filter
+    /** 13.filter
      *  条件に一致したアイテムのみ抽出する。
      *  */
 
@@ -283,7 +281,7 @@ class MainActivity : AppCompatActivity() {
         return Observable.fromIterable(mUserList)
     }
 
-    /** Last
+    /** 14.Last
      *  最後のアイテムのみ取得する。
      *  */
 
@@ -292,11 +290,21 @@ class MainActivity : AppCompatActivity() {
         return Observable.fromIterable(mUserList)
     }
 
-    /** Distinct
+    /** 15.Distinct
      *  重複しているアイテムはどちらか片方しか表示されない。
      *  */
 
     fun distinctOperator() : Observable<User> {
         return Observable.fromIterable(mUserList)
     }
+
+    /** 16.Skip
+     *  指定した数だけonNextを行わない。
+     *  */
+
+    fun skipOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+
 }
