@@ -26,9 +26,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        intervalOperator().subscribe(
+        timeOperator().subscribe(
             {
                 Log.d(TAG, "onNext : $it")
+                getLocation()
             },
             {
                 Log.d(TAG, "${it}")
