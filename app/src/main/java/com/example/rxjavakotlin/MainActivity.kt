@@ -34,10 +34,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        filterOperator()
-            .filter {
-                it.age > 18
-            }
+        lastOperator()
+            .last(User(1, "demo", 15))
             .subscribe(
                 {
                     Log.d(TAG, "onNext : $it")
@@ -45,9 +43,6 @@ class MainActivity : AppCompatActivity() {
                 {
                     Log.d(TAG, "onError ${it}")
                 },
-                {
-                    Log.d(TAG, "onComplete")
-                }
             )
     }
 
@@ -279,6 +274,15 @@ class MainActivity : AppCompatActivity() {
      *  */
 
     fun filterOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+    /** Last
+     *  最後のアイテムのみ取得する。
+     *  */
+
+
+    fun lastOperator() : Observable<User> {
         return Observable.fromIterable(mUserList)
     }
 }
