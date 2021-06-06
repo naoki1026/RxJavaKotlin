@@ -43,14 +43,39 @@ class MainActivity : AppCompatActivity() {
         UserProfile(8, "demo6", 24, "https://text.com/8")
     )
 
+    val mBlogList = mutableListOf<Blog> (
+        Blog(1, 1, "title1", "content1"),
+        Blog(2, 1, "title2", "content2"),
+        Blog(3, 2, "title1", "content1"),
+        Blog(4, 2, "title2", "content2"),
+        Blog(5, 2, "title3", "content3"),
+        Blog(6, 3, "title1", "content1"),
+        Blog(7, 13, "title1", "content1")
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        startWithOperator()
+//        zipOperator()
+//            .subscribe(
+//                {
+//                    Log.d(TAG, "OnNext $it")
+//                },
+//                {
+//                    Log.d(TAG, "onError ${it}")
+//                },
+//                {
+//                    Log.d(TAG, "onComplete")
+//                }
+//            )
+
+        zipOperatorSecond()
             .subscribe(
                 {
-                    Log.d(TAG, "OnNext $it")
+                    it.forEach {
+                        Log.d(TAG, "onNext: $it")
+                    }
                 },
                 {
                     Log.d(TAG, "onError ${it}")
@@ -403,6 +428,57 @@ class MainActivity : AppCompatActivity() {
 
     fun startWithOperator(): Observable<Int> {
         return getNum101To150().startWith(getNum1To100())
+    }
+
+
+    /** 23.Zip Operator
+     *  複数のObservableを組み合わせて（合体する）、出力する
+     *  例では、1つめのObservableを組み合わせて、1Aと出力している。
+     *  以降同様に組み合わせて出力して、5に関しては対応するアルファベットが存在しないため、出力されない。
+     *  */
+
+    // Sample1
+
+    fun zipOperator() : Observable<Any> {
+        val num = Observable.just(1, 2, 3, 4, 5)
+        val char = Observable.just("A", "B", "C", "D")
+        return Observable.zip(num, char, { t1, t2 ->
+            "$t1$t2"
+        })
+    }
+
+    // Sample2
+
+    fun zipOperatorSecond() : Observable<List<BlogDetail>> {
+        return Observable.zip(getUsers(), getBlogs(), {t1, t2 ->
+            blogDetail(t1, t2)
+        })
+    }
+
+    fun getBlogs() : Observable<List<Blog>> {
+        return Observable.just(mBlogList)
+    }
+
+
+    fun getUsers() : Observable<List<User>> {
+        return Observable.just(mUserList)
+    }
+
+    fun blogDetail(t1: List<User>, t2: List<Blog>) : List<BlogDetail> {
+        val listBlogDetail : MutableList<BlogDetail> = emptyList<BlogDetail>().toMutableList()
+        t1.forEach { user ->
+            t2.forEach {
+                    blog ->
+                if(blog.userId == user.id) {
+                    listBlogDetail.add(
+                        BlogDetail(
+                            blog.id, blog.userId, blog.title, blog.content, user
+                        )
+                    )
+                }
+            }
+        }
+        return listBlogDetail
     }
 
 }
