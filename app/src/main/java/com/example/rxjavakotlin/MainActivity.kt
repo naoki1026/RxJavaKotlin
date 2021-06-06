@@ -47,13 +47,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        flatMapOperator()
-            .flatMap {
-                getUserProfile(it.id)
+        groupByOperator()
+            .groupBy {
+                it.age
+            }
+            .filter {
+                it.key == 22
             }
             .subscribe(
-                {
-                    Log.d(TAG, "onNext : $it")
+                { group ->
+                    group.subscribe (
+                        {
+                            Log.d(TAG, "Key : ${group.key} - value : $it")
+
+
+                        },
+                        {
+                            Log.d(TAG, "onError ${it}")
+                        }
+                    )
                 },
                 {
                     Log.d(TAG, "onError ${it}")
@@ -351,5 +363,15 @@ class MainActivity : AppCompatActivity() {
                 it.id == id
             }
     }
+
+    /** 20.GroupBy Operator
+     *  指定した条件に合致するアイテムをObservableから取り出して、それぞれ異なるObservableとして出力する
+     *  */
+
+    fun groupByOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+    
 
 }
