@@ -35,8 +35,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        bufferOperator()
-            .buffer(3)
+        mapOperator()
+            .map {
+                it.age * 2
+            }
             .subscribe(
                 {
                     Log.d(TAG, "onNext : $it")
@@ -314,5 +316,12 @@ class MainActivity : AppCompatActivity() {
         return Observable.fromIterable(mUserList)
     }
 
+    /** 18.Map
+     *  各アイテムに対して関数を反映した上で出力する
+     *  */
+    
+    fun mapOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
 
 }
