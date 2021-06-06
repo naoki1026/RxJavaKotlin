@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        concatOperator()
+        startWithOperator()
             .subscribe(
                 {
                     Log.d(TAG, "OnNext $it")
@@ -396,5 +396,13 @@ class MainActivity : AppCompatActivity() {
 //        return getNum1To100().concatWith(getNum101To150())
     }
 
+    /** 23.StartWith Operator
+     *  アイテムの出力を行う前に、指定された一連のアイテムを出力する
+     *  getNum1To100()から先に実行して、getNum101To150()を実行する
+     *  */
+
+    fun startWithOperator(): Observable<Int> {
+        return getNum101To150().startWith(getNum1To100())
+    }
 
 }
