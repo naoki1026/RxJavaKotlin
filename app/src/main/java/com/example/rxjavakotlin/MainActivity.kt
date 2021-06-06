@@ -29,15 +29,27 @@ class MainActivity : AppCompatActivity() {
         User(5, "demo5", 22),
         User(6, "demo6", 26)
     )
+
     val mUserEmptyList = emptyList<User>()
+
+    val mUserProfileList = arrayListOf<UserProfile>(
+        UserProfile(1, "demo1", 22, "https://text.com/1"),
+        UserProfile(2, "demo2", 18, "https://text.com/2"),
+        UserProfile(3, "demo3", 16, "https://text.com/3"),
+        UserProfile(4, "demo4", 16, "https://text.com/4"),
+        UserProfile(5, "demo5", 22, "https://text.com/5"),
+        UserProfile(6, "demo6", 26, "https://text.com/6"),
+        UserProfile(7, "demo5", 24, "https://text.com/7"),
+        UserProfile(8, "demo6", 24, "https://text.com/8")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mapOperator()
-            .map {
-                it.age * 2
+        flatMapOperator()
+            .flatMap {
+                getUserProfile(it.id)
             }
             .subscribe(
                 {
@@ -319,9 +331,25 @@ class MainActivity : AppCompatActivity() {
     /** 18.Map
      *  各アイテムに対して関数を反映した上で出力する
      *  */
-    
+
     fun mapOperator() : Observable<User> {
         return Observable.fromIterable(mUserList)
+    }
+
+    /** 19.FlatMap
+     *  Observableによって出力されたアイテムをObservableに変換して、1つのObservableにした上で出力する
+     *  ※2重の配列を出力する、関数を間にかませる
+     *  */
+
+    fun flatMapOperator() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+    fun getUserProfile(id: Long) : Observable<UserProfile> {
+        return Observable.fromIterable(mUserProfileList)
+            .filter {
+                it.id == id
+            }
     }
 
 }
