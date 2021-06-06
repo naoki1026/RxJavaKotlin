@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        repeatOperator().subscribe(
+        intervalOperator().subscribe(
             {
                 Log.d(TAG, "onNext : $it")
             },
