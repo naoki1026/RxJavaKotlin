@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.observables.ConnectableObservable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.AsyncSubject
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -64,31 +65,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val observable = Observable.interval(1, TimeUnit.SECONDS).takeWhile{it<=5}
-        val subject = AsyncSubject.create<Long>()
-        observable.subscribe(subject)
-        subject.subscribe (
-            {
-                Log.d(TAG, "onNext1 : $it")
-            },
-            {
-                Log.d(TAG, "omError1 : $it")
-            },
-            {
-                Log.d(TAG, "onCompleted1")
-            }
-        )
-        subject.subscribe (
-            {
-                Log.d(TAG, "onNext2 : $it")
-            },
-            {
-                Log.d(TAG, "omError2 : $it")
-            },
-            {
-                Log.d(TAG, "onCompleted2")
-            }
-        )
+        behaviorSubject()
 
     }
 
@@ -825,7 +802,7 @@ class MainActivity : AppCompatActivity() {
      *  5しか出力されない
      *
      *  */
-    
+
     // onComplete()メソッドを呼ばないと出力されない
     fun asyncSubject2 () {
         val subject = AsyncSubject.create<Int>()
@@ -843,6 +820,45 @@ class MainActivity : AppCompatActivity() {
         )
 
         subject.onComplete()
+    }
+
+
+    /** 36.Behavior Subject
+     * ・直前にonNextで渡された値を保持し、subscribe()した直後に保持していた値を流す。
+     * ・一度onErrorが流されると、onNextは無視されて、subscribe()後にSubscriber側のonErrorが呼ばれる
+     * →RxLifecycleで、ActivityやFragmentのライフサイクルを取得・判別する部分で使われている
+     *
+     *  */
+
+
+    fun behaviorSubject() {
+        val observable = Observable.interval(1, TimeUnit.SECONDS).takeWhile{it <= 5}
+        val subject = BehaviorSubject.create<Long>()
+        observable.subscribe(subject)
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext1 : $it")
+            },
+            {
+                Log.d(TAG, "onError1 : $it")
+            },
+            {
+                Log.d(TAG, "onCompleted1")
+            }
+        )
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext2 : $it")
+            },
+            {
+                Log.d(TAG, "onError2 : $it")
+            },
+            {
+                Log.d(TAG, "onCompleted2")
+            }
+        )
     }
 
 }
