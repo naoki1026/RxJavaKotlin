@@ -808,10 +808,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** 34.Hot Observable
-     *  hotObservable.subscribeの後に、hotObservable.connect()を呼び出さないと出力されない
+     *  hotObservable.subscribeの後に、hotObservable.connect()を呼び出さないと出力・表示されない
+     *  ※計算処理自体は行われている
      *  */
 
-    
+
     fun hotObservable(): ConnectableObservable<User> {
         return Observable.fromIterable(mUserList).publish()
     }
