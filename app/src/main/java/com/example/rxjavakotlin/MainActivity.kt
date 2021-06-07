@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.observables.ConnectableObservable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -62,14 +63,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        coldObservable()
-            .subscribe(coldObserver())
-        Thread.sleep(200)
-        coldObservable()
-            .subscribe(coldObserver())
-        Thread.sleep(300)
-        coldObservable()
-            .subscribe(coldObserver())
+        val hotObservable = hotObservable()
+//        hotObservable.connect()
+        hotObservable.subscribe(
+            {
+                Log.d(TAG, "onNext : $it")
+            },
+            {
+                Log.d(TAG, "onError $it")
+            },
+            {
+                Log.d(TAG, "onComplete")
+            }
+        )
+        hotObservable.connect()
 
     }
 
@@ -782,5 +789,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    /** 34.Hot Observable
+     *  hotObservable.subscribeの後に、hotObservable.connect()を呼び出さないと出力されない
+     *  */
+
+    fun hotObservable(): ConnectableObservable<User> {
+        return Observable.fromIterable(mUserList).publish()
+    }
+
+
 
 }
