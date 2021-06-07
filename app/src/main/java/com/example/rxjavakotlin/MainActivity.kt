@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -57,20 +58,44 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        zipOperator()
-//            .subscribe(
-//                {
-//                    Log.d(TAG, "OnNext $it")
-//                },
-//                {
-//                    Log.d(TAG, "onError ${it}")
-//                },
-//                {
-//                    Log.d(TAG, "onComplete")
-//                }
-//            )
+        // Flowable
+        // BackPressure
+        // 流量制御の仕組みで、データを生産する側より、データを受信して処理する側の処理性能が低い場合、データがオーバーフローしてしまう。
+        // そのためデータを受信する側が自分の処理可能なデータ量を生産側に伝えることでデータを生産する側が必要な数だけデータを提供できる。
 
-        createCompletable().subscribe((observerCompletableObservable()))
+        createFlowableObservable()
+            .onBackpressureDrop()
+            .onBackpressureLatest()
+            .observeOn(Schedulers.io(), false, 10)
+            .subscribe(
+                {
+                    Log.d(TAG, "onNext1 : $it")
+                },
+                {
+                    Log.d(TAG, "onError")
+                },
+                {
+                    Log.d(TAG, "onComplete1")
+                }
+            )
+
+
+        // ObservableをFlowableに変換
+        createFlowableObservableT2()
+            .toFlowable(BackpressureStrategy.MISSING)
+            .onBackpressureDrop()
+            .observeOn(Schedulers.io(), false, 10)
+            .subscribe(
+                {
+                    Log.d(TAG, "onNext2 : $it")
+                },
+                {
+                    Log.d(TAG, "onError")
+                },
+                {
+                    Log.d(TAG, "onComplete2")
+                }
+            )
     }
 
     /** 4, 5.Just
@@ -597,7 +622,7 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-    
+
     fun observerCompletableObservable() : CompletableObserver {
         return object: CompletableObserver {
             override fun onSubscribe(d: Disposable?) {
@@ -621,11 +646,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** 30.Flowable
+     * バックプレッシャーあり。onNextで表示されるデータのスピードを調整することができる。
+     *  */
+
+    // Flowable
+    // BackPressure
+    // 流量制御の仕組みで、データを生産する側より、データを受信して処理する側の処理性能が低い場合、データがオーバーフローしてしまう。
+    // そのためデータを受信する側が自分の処理可能なデータ量を生産側に伝えることでデータを生産する側が必要な数だけデータを提供できる。
+
+    // createFlowableObservable()で10までカウントした後に、createFlowableObservableT2()が実行されて10カウントされた後に、
+    // 再度、createFlowableObservable()が実行されて100までカウントされる
 
     fun createFlowableObservable() : Flowable<Int> {
         return Flowable.range(1, 100)
     }
-
 
     fun createFlowableObservableT2() : Observable<Int> {
         return Observable.range(1, 100)
