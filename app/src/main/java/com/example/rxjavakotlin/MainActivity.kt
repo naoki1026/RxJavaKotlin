@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.observables.ConnectableObservable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.AsyncSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -63,35 +64,29 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val hotObservable = hotObservableTwo()
-        hotObservable.connect()
-        hotObservable.subscribe(
+        val observable = Observable.interval(1, TimeUnit.SECONDS).takeWhile{it<=5}
+        val subject = AsyncSubject.create<Long>()
+        observable.subscribe(subject)
+        subject.subscribe (
             {
-                Log.d(TAG, "onNext 1st : $it")
+                Log.d(TAG, "onNext1 : $it")
             },
             {
-                Log.d(TAG, "onError $it")
+                Log.d(TAG, "omError1 : $it")
             },
             {
-                Log.d(TAG, "onComplete")
+                Log.d(TAG, "onCompleted1")
             }
         )
-
-
-        // 5000ミリ秒経過した後に表示されるようになる
-        // 表示はされなくてもカウントだけはされている
-        Thread.sleep(5000)
-
-
-        hotObservable.subscribe(
+        subject.subscribe (
             {
-                Log.d(TAG, "onNext 2nd : $it")
+                Log.d(TAG, "onNext2 : $it")
             },
             {
-                Log.d(TAG, "onError $it")
+                Log.d(TAG, "omError2 : $it")
             },
             {
-                Log.d(TAG, "onComplete")
+                Log.d(TAG, "onCompleted2")
             }
         )
 
@@ -822,6 +817,32 @@ class MainActivity : AppCompatActivity() {
         return Observable.interval(1, TimeUnit.SECONDS).publish()
     }
 
+    /** 35.Async Subject
+     *  AsyncSubject
+     *  ・AsyncSubject側のonCompletedが呼ばれた直後に、最後にonNextで渡された値のみがonNextの引数として渡される
+     *  ・途中でAsyncSubject側のonErrorが呼ばれた場合は、SubscriberのonNextは呼ばれずにonErrorが呼ばれる
+     *  →値が一つしか流れてこないor最後の一つしか必要ではないときに、コールバックを受け取る実装をするのに便利
+     *  5しか出力されない
+     *
+     *  */
+    
+    // onComplete()メソッドを呼ばないと出力されない
+    fun asyncSubject2 () {
+        val subject = AsyncSubject.create<Int>()
+        subject.onNext(1)
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext2 : $it")
+            },
+            {
+                Log.d(TAG, "omError2 : $it")
+            },
+            {
+                Log.d(TAG, "onCompleted2")
+            }
+        )
 
+        subject.onComplete()
+    }
 
 }
