@@ -62,35 +62,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /** 32.Scheduler
-         * そのスレッドで処理を行うのかを指定することができる。
-         * Schedulers.computation() : 計算用のスレッド
-         * Schedulers.io() : 入出力用のスレッド
-         * AndroidSchedulers.mainThread() : UIスレッドで実行
-         * AndroidSchedulers.from(looper) : 指定したLooperで実行
-         *  */
+        coldObservable()
+            .subscribe(coldObserver())
+        Thread.sleep(200)
+        coldObservable()
+            .subscribe(coldObserver())
+        Thread.sleep(300)
+        coldObservable()
+            .subscribe(coldObserver())
 
-        compositeDisposable.add(
-            Observable.just(mUserList)
-                .flatMap {
-                    Observable.fromIterable(it)
-                }
-
-                // 以下の1行を追加
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        Log.d(TAG, "onNext : $it TheradName: ${Thread.currentThread().name}")
-                    },
-                    {
-                        Log.d(TAG, "onError ${it}")
-                    },
-                    {
-                        Log.d(TAG, "onComplete")
-                    }
-                )
-        )
     }
 
     /** 4, 5.Just
@@ -767,8 +747,39 @@ class MainActivity : AppCompatActivity() {
             override fun onComplete() {
                 Log.d(TAG, "onComplete")
             }
+        }
+    }
+
+    /** 33.Cold Observable
+     * ストリーム（データの流れ）の前後をつなぐだけのパイプのことで、単体では意味がない。
+     * ・自発的には何もしない受動的なObservable
+     * ・Observerが登録されて（subscribeされて）初めて仕事を始める
+     * ・ストリームの前後をただつなぐだけで、枝分かれする機能はない
+     *  */
 
 
+    fun coldObservable() : Observable<User> {
+        return Observable.fromIterable(mUserList)
+    }
+
+
+    fun coldObserver(): Observer<User> {
+        return object : Observer<User> {
+            override fun onSubscribe(d: Disposable?) {
+                Log.d(TAG, "onSubscribe")
+            }
+
+            override fun onNext(t: User?) {
+                Log.d(TAG, "onNext : $t")
+            }
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG, "onError : $e")
+            }
+
+            override fun onComplete() {
+                Log.d(TAG, "onComplete")
+            }
         }
     }
 
