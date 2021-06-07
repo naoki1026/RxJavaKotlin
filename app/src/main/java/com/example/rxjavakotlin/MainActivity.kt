@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.AsyncSubject
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.ReplaySubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        publishSubjectTwo()
+        replaySubject()
 
     }
 
@@ -919,5 +920,101 @@ class MainActivity : AppCompatActivity() {
         )
         subject.onNext(0)
         subject.onNext(1)
+    }
+
+    /** 38.Replay Subject
+     * subscribe()した後に、Subjectに今までonNextで流されていた値が全てやってくる
+     * onNext1, onNext2, onNext3が全て同じタイミングで出力される
+     * →元データからの差分をObservableに流す機構と相性が良い？
+     *
+     *  */
+
+    fun replaySubject() {
+        val observable = Observable.interval(1, TimeUnit.SECONDS).takeWhile{ it <= 5}
+            .observeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+
+
+        val subject = ReplaySubject.create<Long>()
+        observable.subscribe(subject)
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext1: $it")
+            },
+            {
+                Log.d(TAG, "onError1: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted1")
+            }
+        )
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext2: $it")
+            },
+            {
+                Log.d(TAG, "onError2: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted2")
+            }
+        )
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext3: $it")
+            },
+            {
+                Log.d(TAG, "onError3: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted3")
+            }
+        )
+    }
+
+    fun replaySubjectTwo() {
+
+
+        val subject = ReplaySubject.create<Long>()
+        subject.onNext(0)
+        subject.onNext(1)
+
+
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext1: $it")
+            },
+            {
+                Log.d(TAG, "onError1: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted1")
+            }
+        )
+
+
+        subject.onNext(2)
+        subject.onNext(3)
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext2: $it")
+            },
+            {
+                Log.d(TAG, "onError2: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted2")
+            }
+        )
     }
 }
