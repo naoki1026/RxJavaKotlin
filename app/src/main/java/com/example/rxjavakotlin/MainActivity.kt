@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            )
 
-        createMaybeObservable().subscribe(observeMaybeObservable())
+        createCompletable().subscribe((observerCompletableObservable()))
     }
 
     /** 4, 5.Just
@@ -582,8 +582,6 @@ class MainActivity : AppCompatActivity() {
     /** 28.Maybe and MaybeObserver
      * 1件も通知せずに完了を通知するか、もしくはエラーを通知するクラス
      *  */
-
-
 
     fun createCompletable() : Completable {
         return Completable.create {  emitter ->
