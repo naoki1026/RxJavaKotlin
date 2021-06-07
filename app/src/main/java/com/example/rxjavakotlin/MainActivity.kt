@@ -352,6 +352,22 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    // 以下のコードで書き換え可能
+    fun startFlatMapOperator() {
+        Observable.fromIterable(mUserList)
+            .subscribe(
+                {
+                    Log.d(TAG, "onNext : $it")
+                },
+                {
+                    Log.d(TAG, "onError ${it}")
+                },
+                {
+                    Log.d(TAG, "onComplete")
+                }
+            )
+    }
+
     /** 20.GroupBy Operator
      *  指定した条件に合致するアイテムをObservableから取り出して、それぞれ異なるObservableとして出力する
      *  */
