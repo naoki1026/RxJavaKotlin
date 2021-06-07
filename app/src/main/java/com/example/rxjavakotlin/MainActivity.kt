@@ -53,49 +53,15 @@ class MainActivity : AppCompatActivity() {
         Blog(6, 3, "title1", "content1"),
         Blog(7, 13, "title1", "content1")
     )
+    lateinit var disposable : Disposable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Flowable
-        // BackPressure
-        // 流量制御の仕組みで、データを生産する側より、データを受信して処理する側の処理性能が低い場合、データがオーバーフローしてしまう。
-        // そのためデータを受信する側が自分の処理可能なデータ量を生産側に伝えることでデータを生産する側が必要な数だけデータを提供できる。
-
-        createFlowableObservable()
-            .onBackpressureDrop()
-            .onBackpressureLatest()
-            .observeOn(Schedulers.io(), false, 10)
-            .subscribe(
-                {
-                    Log.d(TAG, "onNext1 : $it")
-                },
-                {
-                    Log.d(TAG, "onError")
-                },
-                {
-                    Log.d(TAG, "onComplete1")
-                }
-            )
-
-
-        // ObservableをFlowableに変換
-        createFlowableObservableT2()
-            .toFlowable(BackpressureStrategy.MISSING)
-            .onBackpressureDrop()
-            .observeOn(Schedulers.io(), false, 10)
-            .subscribe(
-                {
-                    Log.d(TAG, "onNext2 : $it")
-                },
-                {
-                    Log.d(TAG, "onError")
-                },
-                {
-                    Log.d(TAG, "onComplete2")
-                }
-            )
+        createObservableDisposable()
+            .subscribeOn(Schedulers.io())
+            .subscribe(observerObservable())
     }
 
     /** 4, 5.Just
@@ -664,5 +630,59 @@ class MainActivity : AppCompatActivity() {
 
     fun createFlowableObservableT2() : Observable<Int> {
         return Observable.range(1, 100)
+    }
+
+    /** 31.Disposable
+     * リソース解放用のインターフェース
+     * subscribeの戻り値で、disposeすることによりリソースが解放される
+     *  */
+
+    fun createObservableDisposable() : Observable<Int> {
+        return Observable.create { emitter ->
+            try {
+                if(!emitter.isDisposed){
+                    for(i in 0..100000) {
+                        emitter.onNext(i)
+                    }
+                    emitter.onComplete()
+                }
+            }
+            catch (e:Exception) {
+                emitter.onError(e)
+            }
+        }
+    }
+
+
+    fun observerObservable() : Observer<Int> {
+        return object : Observer<Int> {
+            override fun onSubscribe(d: Disposable?) {
+                d?.let {
+                    disposable = d
+                }
+                Log.d(TAG, "onSubscribe")
+            }
+
+
+            override fun onNext(t: Int?) {
+                Log.d(TAG, "onNext : $t")
+            }
+
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG, "onError : $e")
+            }
+
+
+            override fun onComplete() {
+                Log.d(TAG, "onComplete")
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        disposable.dispose()
+        Log.d(TAG, "onDestroy")
+        super.onDestroy()
     }
 }
