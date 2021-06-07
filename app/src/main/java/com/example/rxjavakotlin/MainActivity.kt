@@ -3,9 +3,11 @@ package com.example.rxjavakotlin
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
@@ -54,14 +56,41 @@ class MainActivity : AppCompatActivity() {
         Blog(7, 13, "title1", "content1")
     )
     lateinit var disposable : Disposable
+    var compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        createObservableDisposable()
-            .subscribeOn(Schedulers.io())
-            .subscribe(observerObservable())
+        /** 32.Scheduler
+         * そのスレッドで処理を行うのかを指定することができる。
+         * Schedulers.computation() : 計算用のスレッド
+         * Schedulers.io() : 入出力用のスレッド
+         * AndroidSchedulers.mainThread() : UIスレッドで実行
+         * AndroidSchedulers.from(looper) : 指定したLooperで実行
+         *  */
+
+        compositeDisposable.add(
+            Observable.just(mUserList)
+                .flatMap {
+                    Observable.fromIterable(it)
+                }
+
+                // 以下の1行を追加
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        Log.d(TAG, "onNext : $it TheradName: ${Thread.currentThread().name}")
+                    },
+                    {
+                        Log.d(TAG, "onError ${it}")
+                    },
+                    {
+                        Log.d(TAG, "onComplete")
+                    }
+                )
+        )
     }
 
     /** 4, 5.Just
@@ -696,9 +725,51 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        disposable.dispose()
-        Log.d(TAG, "onDestroy")
-        super.onDestroy()
+
+
+    fun createObservableSche() : Observable<Int> {
+        return Observable.create { emitter ->
+            try {
+                if(!emitter.isDisposed){
+                    for(i in 0..100) {
+                        emitter.onNext(i)
+                    }
+                    emitter.onComplete()
+                }
+            }
+            catch (e:Exception) {
+                emitter.onError(e)
+            }
+        }
     }
+
+
+    fun observerObservableSche() : Observer<Int> {
+        return object : Observer<Int> {
+            override fun onSubscribe(d: Disposable?) {
+                d?.let {
+                    disposable = d
+                }
+                Log.d(TAG, "onSubscribe")
+            }
+
+
+            override fun onNext(t: Int?) {
+                Log.d(TAG, "onNext : $t")
+            }
+
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG, "onError : $e")
+            }
+
+
+            override fun onComplete() {
+                Log.d(TAG, "onComplete")
+            }
+
+
+        }
+    }
+
 }
