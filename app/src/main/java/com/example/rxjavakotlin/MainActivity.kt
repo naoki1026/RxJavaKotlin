@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            )
 
-        createSingleObservable().subscribe(singleObserver())
+        createMaybeObservable().subscribe(observeMaybeObservable())
     }
 
     /** 4, 5.Just
@@ -547,6 +547,80 @@ class MainActivity : AppCompatActivity() {
             override fun onError(e: Throwable?) {
                 Log.d(TAG, "onError")
             }
+        }
+    }
+
+    /** 28.Maybe and MaybeObserver
+     * データを1件だけ通知するか、1件も通知せずに完了を通知するか、もしくはエラーを通知するクラス
+     *  */
+
+
+    fun createMaybeObservable(): Maybe<List<User>> {
+        return Maybe.just(mUserList)
+    }
+
+    fun observeMaybeObservable() : MaybeObserver<List<User>> {
+        return object : MaybeObserver<List<User>> {
+            override fun onSubscribe(d: Disposable?) {
+                Log.d(TAG, "onSubscribe")
+            }
+            override fun onSuccess(t: List<User>?) {
+                t?.forEach {
+                    Log.d(TAG, "onSuccess : $it")
+                }
+            }
+            override fun onError(e: Throwable?) {
+                Log.d(TAG, "onError")
+            }
+
+            override fun onComplete() {
+                Log.d(TAG, "onComplete")
+            }
+        }
+    }
+
+    /** 28.Maybe and MaybeObserver
+     * 1件も通知せずに完了を通知するか、もしくはエラーを通知するクラス
+     *  */
+
+
+
+    fun createCompletable() : Completable {
+        return Completable.create {  emitter ->
+            try {
+                if(!emitter.isDisposed) {
+                    getLocation()
+                    emitter.onComplete()
+                }
+            } catch (e:Exception) {
+                emitter.onError(e)
+            }
+
+
+        }
+    }
+
+
+    fun observerCompletableObservable() : CompletableObserver {
+        return object: CompletableObserver {
+            override fun onSubscribe(d: Disposable?) {
+                Log.d(TAG, "onSubscribe")
+            }
+
+
+            override fun onComplete() {
+                Log.d(TAG, "onComplete")
+            }
+
+
+            override fun onError(e: Throwable?) {
+
+                // thorw Exception(“Exceptoion”)
+                // 上記を記述することでエラーの状態することができる
+                Log.d(TAG, "onError")
+            }
+
+
         }
     }
 }
