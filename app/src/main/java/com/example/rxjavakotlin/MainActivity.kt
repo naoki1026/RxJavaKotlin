@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.observables.ConnectableObservable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.AsyncSubject
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        behaviorSubject()
+        publishSubjectTwo()
 
     }
 
@@ -861,4 +862,62 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+
+    /** 37.Publish Subject
+     * onNext、onError、onSucceedすべての呼び出しがSubscriber側の同じメソッドに伝搬する（普通のリスナーと同
+     * →リスナー系の仕組みをRxを使用して置き換える
+     *
+     *  */
+
+    fun publishSubject() {
+        val observable = Observable.interval(1, TimeUnit.SECONDS).takeWhile{ it <= 5}
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+
+        val subject = PublishSubject.create<Long>()
+        observable.subscribe(subject)
+
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext1: $it")
+            },
+            {
+                Log.d(TAG, "onError1: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted1")
+            }
+        )
+
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext2: $it")
+            },
+            {
+                Log.d(TAG, "onError2: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted2")
+            }
+        )
+    }
+
+
+    fun publishSubjectTwo(){
+        val subject = PublishSubject.create<Int>()
+        subject.subscribe(
+            {
+                Log.d(TAG, "onNext1: $it")
+            },
+            {
+                Log.d(TAG, "onError1: $it")
+            },
+            {
+                Log.d(TAG, "onCompleted1")
+            }
+        )
+        subject.onNext(0)
+        subject.onNext(1)
+    }
 }
