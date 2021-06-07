@@ -63,11 +63,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val hotObservable = hotObservable()
-//        hotObservable.connect()
+        val hotObservable = hotObservableTwo()
+        hotObservable.connect()
         hotObservable.subscribe(
             {
-                Log.d(TAG, "onNext : $it")
+                Log.d(TAG, "onNext 1st : $it")
             },
             {
                 Log.d(TAG, "onError $it")
@@ -76,7 +76,24 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "onComplete")
             }
         )
-        hotObservable.connect()
+
+
+        // 5000ミリ秒経過した後に表示されるようになる
+        // 表示はされなくてもカウントだけはされている
+        Thread.sleep(5000)
+
+
+        hotObservable.subscribe(
+            {
+                Log.d(TAG, "onNext 2nd : $it")
+            },
+            {
+                Log.d(TAG, "onError $it")
+            },
+            {
+                Log.d(TAG, "onComplete")
+            }
+        )
 
     }
 
@@ -794,8 +811,14 @@ class MainActivity : AppCompatActivity() {
      *  hotObservable.subscribeの後に、hotObservable.connect()を呼び出さないと出力されない
      *  */
 
+    
     fun hotObservable(): ConnectableObservable<User> {
         return Observable.fromIterable(mUserList).publish()
+    }
+
+
+    fun hotObservableTwo(): ConnectableObservable<Long> {
+        return Observable.interval(1, TimeUnit.SECONDS).publish()
     }
 
 
