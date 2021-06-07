@@ -3,8 +3,8 @@ package com.example.rxjavakotlin
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import io.reactivex.rxjava3.core.*
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.*
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            )
 
-        createObservable().subscribe(observer())
+        createSingleObservable().subscribe(singleObserver())
     }
 
     /** 4, 5.Just
@@ -471,7 +471,6 @@ class MainActivity : AppCompatActivity() {
     /** 25.Observable　and Observer
      *  */
 
-
     fun createObservable() : Observable<Int> {
         return Observable.create { emitter ->
             try {
@@ -492,7 +491,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     fun observer() : Observer<Int> {
         return object : Observer<Int> {
             override fun onSubscribe(d: Disposable?) {
@@ -509,6 +507,45 @@ class MainActivity : AppCompatActivity() {
 
             override fun onComplete() {
                 Log.d(TAG, "onComplete")
+            }
+        }
+    }
+
+
+    /** 27.Single and Single Observer
+     * データを1件だけ通知するか、もしくはエラーを通知するクラス
+     * 1回だけしか呼び出されないため、サンプルコードの場合は0のみ出力される
+     *  */
+
+    fun createSingleObservable() : Single<Int> {
+        return Single.create { emitter ->
+            try {
+                if(!emitter.isDisposed) {
+                    for (i in 0..100) {
+                        emitter.onSuccess(i)
+                    }
+                }
+            }
+            catch (e:Exception) {
+                emitter.onError(e)
+            }
+        }
+    }
+
+    fun singleObserver() : SingleObserver<Int> {
+        return object : SingleObserver<Int> {
+            override fun onSubscribe(d: Disposable?) {
+                Log.d(TAG, "onSubscribe")
+            }
+
+
+            override fun onSuccess(t: Int?) {
+                Log.d(TAG, "onSuccess : $t")
+            }
+
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG, "onError")
             }
         }
     }
