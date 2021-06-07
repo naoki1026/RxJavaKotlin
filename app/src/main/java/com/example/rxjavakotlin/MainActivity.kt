@@ -579,7 +579,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 28.Maybe and MaybeObserver
+    /** 29.Completable and CompletableObserver
      * 1件も通知せずに完了を通知するか、もしくはエラーを通知するクラス
      *  */
 
@@ -597,8 +597,7 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-
-
+    
     fun observerCompletableObservable() : CompletableObserver {
         return object: CompletableObserver {
             override fun onSubscribe(d: Disposable?) {
@@ -620,5 +619,15 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+    }
+
+
+    fun createFlowableObservable() : Flowable<Int> {
+        return Flowable.range(1, 100)
+    }
+
+
+    fun createFlowableObservableT2() : Observable<Int> {
+        return Observable.range(1, 100)
     }
 }
